@@ -14,6 +14,15 @@ if (file_exists($file)) {
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $data = file_get_contents('php://input');
     $input = json_decode($data, true);
+    
+    //add validation
+    $todoText = trim($input['todo'] ?? '');
+    if ($todoText === '') {
+        http_response_code(400);
+        echo json_encode(['error' => 'Todo text cannot be empty']);
+        exit;
+    }
+
     $todos[] = $input['todo'];
     file_put_contents($file, json_encode($todos));
     echo json_encode(['status' => 'success']);
