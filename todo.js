@@ -7,6 +7,15 @@ document.getElementById('todoForm').addEventListener('submit', function (e) {
     e.preventDefault();
  
     const todoInput = document.getElementById('todoInput').value;
+
+    // validation
+    if (todoInput.trim() === ""){
+        document.getElementById("message").textContent="ERROR input empty: nothing added";
+        return;
+    }else{
+        document.getElementById("message").textContent="";
+    }
+    
  
     fetch('todo-api.php', {
         method: 'POST',
