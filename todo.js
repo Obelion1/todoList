@@ -7,13 +7,18 @@ document.getElementById('todoForm').addEventListener('submit', function (e) {
     e.preventDefault();
  
     const todoInput = document.getElementById('todoInput').value;
+    const message = document.getElementById("message");
 
     // validation
     if (todoInput.trim() === ""){
-        document.getElementById("message").textContent="ERROR input empty: nothing added";
+
+        message.textContent = "ERROR input empty: nothing added";
+        message.style.visibility = "visible";
+
+        setTimeout(() => {
+            message.textContent="";
+        }, 3000);
         return;
-    }else{
-        document.getElementById("message").textContent="";
     }
     
  
