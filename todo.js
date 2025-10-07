@@ -5,6 +5,9 @@ const message = document.getElementById("message");
 const form = document.getElementById('todoForm');
 const input = document.getElementById('todoInput');
 const todoList = document.getElementById('todoList');
+const updateForm = document.getElementById('updateForm');
+const updateButton = document.getElementById('updateButton');
+
 
 // Handle form submit
 form.addEventListener('submit', function (e) {
@@ -61,6 +64,65 @@ function getDeleteButton(item) {
     return deleteButton;
 }
 
+// Create done button
+function getDoneButton(item) {
+    const doneButton = document.createElement('button');
+    doneButton.textContent = 'Erledigt';
+
+    doneButton.addEventListener('click', function () {
+        fetch(apiUrl, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ id: item.id, completed: !item.completed })
+        })
+        .then(response => response.json())
+        .then((result) => {
+            console.log("Completed:", result);
+            fetchTodos();
+        });
+    });
+
+    return doneButton;
+} 
+
+// Create update button
+function getUpdateButton(item) {
+    const updateButton = document.createElement('button');
+    updateButton.textContent = 'Ändern';
+
+    updateButton.addEventListener('click', function () {
+        const updateForm = document.getElementById('updateForm');
+        const updateInput = document.getElementById('updateInput');
+
+        updateInput.value = item.text;
+        updateForm.dataset.todoId = item.id;
+        updateForm.style.display = 'block';
+
+    });
+
+    return updateButton;
+}
+// update item name
+updateForm.addEventListener('submit', function (e) {
+    e.preventDefault();
+
+    const id = updateForm.dataset.todoId;
+    const newText = updateInput.value;
+
+    fetch(apiUrl, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: id, text: newText })
+    })
+    .then(response => response.json())
+    .then(result => {
+        console.log("Updated:", result);
+        updateForm.style.display = 'none';  // hide form again
+        fetchTodos();                       // reload updated list
+    });
+});
 // Fetch and display all todos
 function fetchTodos() {
     fetch(apiUrl)
@@ -70,8 +132,13 @@ function fetchTodos() {
 
             todos.forEach(todo => {
                 const li = document.createElement('li');
-                li.textContent = todo.text; // FIXED: show text instead of [object Object]
+                li.textContent = todo.text;
+                if (todo.completed) {
+                    li.style.textDecoration = 'line-through';
+                }
                 li.appendChild(getDeleteButton(todo));
+                li.appendChild(getDoneButton(todo));
+                li.appendChild(getUpdateButton(todo));
                 todoList.appendChild(li);
             });
         });

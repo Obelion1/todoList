@@ -35,7 +35,8 @@ switch ($method) {
         // Create a todo with a unique ID
         $newTodo = [
             'id' => uniqid(),   // generates unique string ID
-            'text' => $todoText
+            'text' => $todoText,
+            'completed' => false
         ];
 
         $todos[] = $newTodo;
@@ -69,11 +70,33 @@ switch ($method) {
         echo json_encode(['status' => 'success', 'deletedId' => $idToDelete]);
         break;
 
-    case 'PUT':
-        // Placeholder for future updates
-        http_response_code(501); // 501 = Not Implemented
-        echo json_encode(['error' => 'PUT method not yet implemented']);
+    case 'PATCH':
+        $input = json_decode(file_get_contents('php://input'), true);
+        foreach ($todos as &$todo) {
+            if ($todo['id'] === $input['id']) {
+                $todo['completed'] = $input['completed'];
+            }
+        }
+        file_put_contents($file, json_encode($todos));
+        echo json_encode(['updated' => $input['id']]);
         break;
+
+        case 'PUT':
+            $input = json_decode(file_get_contents('php://input'), true);
+            foreach ($todos as &$todo) {
+                if ($todo['id'] === $input['id']) {
+                    if (isset($input['text'])) {
+                        $todo['text'] = $input['text'];
+                    }
+                    if (isset($input['completed'])) {
+                        $todo['completed'] = $input['completed'];
+                    }
+                }
+            }
+            file_put_contents($file, json_encode($todos));
+            echo json_encode(['updated' => $input['id']]);
+            break;
+        
 
     default:
         http_response_code(405); // Method Not Allowed
